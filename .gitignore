@@ -39,6 +39,8 @@ coverage.xml
 
 # Jupyter Notebook
 .ipynb_checkpoints
+.ipynb_checkpoints/
+notebooks/.ipynb_checkpoints/
 
 # IPython
 profile_default/
@@ -71,3 +73,6 @@ sktime-dev/
 envs/
 *.html
 temp/
+
+# Data files
+data/
