@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "earth-exploration"
 version = "0.1.0"
-description = "Geospatial data analysis using Google Earth Engine"
+description = "Geospatial data analysis sandbox"
 authors = ["alakocy <alakocy@gmail.com>"]
 license = "MIT"
 readme = "README.md"
