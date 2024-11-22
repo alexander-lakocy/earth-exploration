@@ -16,6 +16,9 @@ class ASFData:
         self.mission_data_take_id = None
         self.product_unique_identifier = None
 
+    # TODO: Change to reference scene directory, i.e. S1A...SAFE
+    #  This way, can load any of the tiffs or annotations.
+    #  May need a Scene class?
     def load(self, filepath: str) -> None:
         self.filepath = filepath
         filepath_p = Path(filepath)

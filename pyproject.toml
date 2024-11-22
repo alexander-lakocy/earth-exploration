@@ -5,6 +5,7 @@ description = "Geospatial data analysis sandbox"
 authors = ["alakocy <alakocy@gmail.com>"]
 license = "MIT"
 readme = "README.md"
+packages = [{include = "asf_analysis", from="src"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
