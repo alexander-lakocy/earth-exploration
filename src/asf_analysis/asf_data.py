@@ -4,6 +4,8 @@ from typing import Union
 import xml.etree.ElementTree as ET
 
 import numpy as np
+import rasterio
+from scipy.interpolate import griddata
 
 ASF_CHUNK_ORDER = [
     "mission",
@@ -54,7 +56,10 @@ class ASFDataFile:
 
         self.polarization = self.asf_metadata["process_level_class_polarization"]
         self.beam_mode = self.asf_metadata["beam_mode"]
+
+        self.geolocation_array = np.array([])
         self.geo_bounds = np.zeros((4, 2))
+        self.data_array = None
 
         self.annotation_filepath = None
         self.annotation_filename = None
@@ -95,9 +100,62 @@ class ASFDataFile:
             np.argmax(geolocation_array[:, 3]),
         ]
 
-        four_corner_coords = np.take(geolocation_array, four_corner_indices, axis=0)[:, 2:]
+        four_corner_elements = np.take(geolocation_array, four_corner_indices, axis=0)
+        four_corner_lines = four_corner_elements[:, 0]
+        four_corner_pixels = four_corner_elements[:, 1]
+        four_corner_coords = four_corner_elements[:, 2:]
 
+        self.geolocation_array = geolocation_array
         self.geo_bounds = four_corner_coords
+        self.corner_lines = four_corner_lines
+        self.corner_pixels = four_corner_pixels
+
+    def load_data_array(self) -> None:
+        """
+        Loads measurement data into self.data_array.
+        """
+        if self.data_array is None:
+            with rasterio.open(self.filename, "r") as raster_data:
+                self.data_array = raster_data.read(1)
+
+    def get_geo_arrays(self, line_skip: int = 1, pixel_skip: int = 1) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """
+        Compute geo-referenced data array for the given sampling.
+
+        Parameters
+        ----------
+        line_skip : int
+            Number of elements to skip along "lines" axis
+            i.e. 2 -> every other element from data_array is skipped.
+            Default: 1 (no skips, return full array)
+        pixel_skip : int
+            Number of elements to skip along "pixels" axis
+            Default: 1 (no skips, return full array)
+        Returns
+        -------
+        tuple (3) numpy arrays of shape data_array[::line_skip, ::pixel_skip]
+            (np.ndarray): latitude of data points
+            (np.ndarray): longitude of data points
+            (np.ndarray): data points
+        """
+        d_shape = self.data_array.shape
+        lines = self.geolocation_array[:, 0]
+        pixels = self.geolocation_array[:, 1]
+        lats = self.geolocation_array[:, 2]
+        lons = self.geolocation_array[:, 3]
+
+        # Interpolate input only to desired output resolution
+        target_lines, target_pixels = np.meshgrid(
+            np.arange(0, d_shape[0], line_skip),
+            np.arange(0, d_shape[1], pixel_skip),
+            indexing="ij"
+        )
+        lat_grid = griddata((lines, pixels), lats, (target_lines, target_pixels), method="linear")
+        lon_grid = griddata((lines, pixels), lons, (target_lines, target_pixels), method="linear")
+
+        reduced_data_array = self.data_array[::line_skip, ::pixel_skip]
+
+        return lat_grid, lon_grid, reduced_data_array
 
 
 class ASFData:
