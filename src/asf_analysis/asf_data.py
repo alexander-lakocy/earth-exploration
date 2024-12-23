@@ -1,3 +1,5 @@
+import os
+import zipfile
 from pathlib import Path
 from typing import Union
 
@@ -158,7 +160,56 @@ class ASFDataFile:
         return lat_grid, lon_grid, reduced_data_array
 
 
+class ASFDataScene:
+    """
+    Represents a full product directory, including the .zip archive file downloaded from the ASF database
+
+    Contains Data:
+    - data files (measurement): .tiff
+    - annotation files (annotation): .xml
+    - metadata from annotation files, filestem, etc.
+    - preview imagery
+
+    Contains methods for rendering preview image, finding geographic extents of sub-measurements, etc.
+    """
+    def __init__(self, zipfilename: str) -> None:
+        self.zipfilename = zipfilename
+        self.root_dir = None
+
+        self.data_filenames = []
+        self.annotation_filenames = []
+        self._parse_zip_file()
+
+    def _parse_zip_file(self) -> None:
+        if not os.path.isfile(self.zipfilename):
+            raise ValueError(f"Could not find zip archive file at: {self.zipfilename}")
+        data_stems = []
+        with zipfile.ZipFile(self.zipfilename, "r") as zip_file:
+            for z_name in zip_file.namelist():
+                z_path = Path(z_name)
+                if z_path.suffix == ".tiff":
+                    self.data_filenames.append(str(z_path))
+                    data_stems.append(z_path.stem)
+            for z_name in zip_file.namelist():
+                z_path = Path(z_name)
+                if z_path.stem in data_stems and z_path.suffix == ".xml":
+                    self.annotation_filenames.append(str(z_path))
+
+    # TODO: Add logic for detecting number of sub-swaths and polarization for sub-swaths?
+
+    # TODO: Add method for rendering preview image (preview / quick-look.png) along with North arrow?
+
+    # TODO: Add method for getting 4-point geocode lat/long from preview (very rough)
+
+    # TODO: Add method for finding geographic bounds of all sub-measurements and polarizations
+
+
 class ASFData:
+    """
+    Deprecating this in favor of more specific class names.
+
+    Will move most logic into `ASFDataScene` class.
+    """
     def __init__(self) -> None:
         self.filepath = None
         self.file_stem = None

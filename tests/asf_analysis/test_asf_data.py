@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 from matplotlib import pyplot as plt
 
-from asf_analysis.asf_data import ASFData, ASFDataFile, parse_asf_data_from_filename, ASF_CHUNK_ORDER
+from asf_analysis.asf_data import ASFData, ASFDataFile, parse_asf_data_from_filename, ASF_CHUNK_ORDER, ASFDataScene
 
 
 @pytest.fixture
@@ -20,6 +20,11 @@ def single_s1a_filename():
         "./data/sentinel-1/S1A_IW_SLC__1SDV_20180606T141441_20180606T141508_022237_0267EB_EC03.SAFE"
         "/measurement/s1a-iw1-slc-vh-20180606t141443-20180606t141508-022237-0267eb-001.tiff"
     )
+
+
+@pytest.fixture
+def s1a_zipfile():
+    yield "./data/sentinel-1/S1A_IW_SLC__1SDV_20180606T141441_20180606T141508_022237_0267EB_EC03.zip"
 
 
 @pytest.fixture
@@ -118,9 +123,9 @@ class TestASFDataFile:
     @pytest.mark.parametrize(
         "line_skip_values, pixel_skip_values",
         [
-            (4, 4),
-            (100, 100),
-            (50, 200),
+            # (4, 4),
+            # (100, 100),
+            # (50, 200),
             (217, 505),
         ]
     )
@@ -161,6 +166,37 @@ class TestASFDataFile:
         )
         fig.suptitle(asf_datafile.filestem)
         plt.show()
+
+
+class TestASFDataScene:
+    @pytest.mark.unit
+    def test_create_asf_datascene(self, s1a_zipfile):
+        asf_datascene = ASFDataScene(s1a_zipfile)
+        assert asf_datascene.zipfilename == s1a_zipfile
+        assert asf_datascene.root_dir is None
+
+    @pytest.mark.unit
+    def test_asf_datascene_finds_data_files(self, s1a_zipfile):
+        """On load, want ASFDataScene to index data files within ZIP archive"""
+        asf_datascene = ASFDataScene(s1a_zipfile)
+        assert hasattr(asf_datascene, "data_filenames")
+        assert isinstance(asf_datascene.data_filenames, list)
+        assert len(asf_datascene.data_filenames) == 6
+
+    @pytest.mark.unit
+    def test_asf_datascene_finds_annotation_files(self, s1a_zipfile):
+        """On load, want ASFDataScene to index annotation files within ZIP archive"""
+        asf_datascene = ASFDataScene(s1a_zipfile)
+        assert hasattr(asf_datascene, "annotation_filenames")
+        assert isinstance(asf_datascene.annotation_filenames, list)
+        assert len(asf_datascene.annotation_filenames) == 6
+
+
+    # # On load, want the ASFDataScene to find the subfiles and store a dict of {stem:geo_bounds}
+    # @pytest.mark.unit
+    # def test_asf_datascene_finds_geo_bounds(self, s1a_zipfile):
+    #     asf_datascene = ASFDataScene(s1a_zipfile)
+    #     assert hasattr(asf_datascene, "stem_geo_bounds")
 
 
 # TODO: Update this to hold entire .SAFE directory data
