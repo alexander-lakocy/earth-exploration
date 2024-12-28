@@ -20,6 +20,7 @@ share/python-wheels/
 __pycache__/
 src/*/__pycache__/
 tests/*/__pycache__/
+.pytest-cache/
 
 # Installer logs
 pip-log.txt
@@ -79,4 +80,6 @@ envs/
 temp/
 
 # Data files
-data/
+data/sentinel-1/
+data/.ipynb_checkpoints/
+tests/test_data/
