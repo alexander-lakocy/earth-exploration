@@ -285,14 +285,14 @@ class ASFDataScene:
         return asf_datascene
 
     def _local_search_for_zipfile(self, safe_path: Union[str, Path]) -> None:
-        print(f"_local_search_for_zipfile: {safe_path = }")
+        module_logger.debug(f"_local_search_for_zipfile: {safe_path = }")
         if not isinstance(safe_path, Path):
             safe_path = Path(safe_path)
 
         search_str = str(safe_path.parent / safe_path.stem) + ".zip"
-        print(f"_local_search_for_zipfile: {search_str = }")
+        module_logger.debug(f"_local_search_for_zipfile: {search_str = }")
         zips = glob.glob(search_str)
-        print(f"_local_search_for_zipfile: {zips = }")
+        module_logger.debug(f"_local_search_for_zipfile: {zips = }")
         if len(zips) > 0:
             zip_filename = zips[0]
             self.zip_path = Path(zip_filename).absolute()
