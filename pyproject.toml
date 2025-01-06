@@ -20,14 +20,14 @@ matplotlib = "^3.9.2"
 asf-search = "^8.0.1"
 cartopy = "^0.24.1"
 rasterio = "^1.4.2"
-eoreader = "^0.21.7"
-fiona = "^1.10.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.3"
 pytest-mock = "^3.14.0"
 pytest-cov = "^6.0.0"
 jupyterlab = "^4.3.0"
+eoreader = "^0.21.7"
+fiona = "^1.10.1"
 
 [build-system]
 requires = ["poetry-core"]
