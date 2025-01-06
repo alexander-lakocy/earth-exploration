@@ -1,10 +1,11 @@
 [tool.poetry]
 name = "earth-exploration"
 version = "0.1.0"
-description = "Geospatial data analysis using Google Earth Engine"
+description = "Geospatial data analysis sandbox"
 authors = ["alakocy <alakocy@gmail.com>"]
 license = "MIT"
 readme = "README.md"
+packages = [{include = "asf_analysis", from="src"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -25,6 +26,8 @@ pytest = "^8.3.3"
 pytest-mock = "^3.14.0"
 pytest-cov = "^6.0.0"
 jupyterlab = "^4.3.0"
+eoreader = "^0.21.7"
+fiona = "^1.10.1"
 
 [build-system]
 requires = ["poetry-core"]
